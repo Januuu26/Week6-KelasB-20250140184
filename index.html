@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Produk & Form Pemesanan (Fake Store API)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid me-0.5 fa-store"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-slate-900 leading-tight">FakeStoreApp</h1>
+                    <p class="text-xs text-slate-500 font-medium">Fetch API & Form DOM</p>
+                </div>
+            </div>
+
+            <nav class="flex items-center gap-4">
+                <a href="#katalog-section" class="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors hidden sm:block">Katalog</a>
+                <a href="#form-section" class="text-sm font-semibold bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-all">Form Pemesanan</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-12">
+        
+        <!-- BAGIAN 1: Katalog Produk (Fetch API Fake Store) -->
+        <section id="katalog-section" class="space-y-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-5">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">Fitur 1</span>
+                    <h2 class="text-2xl font-bold text-slate-900 mt-2">Katalog Produk (Fake Store API)</h2>
+                    <p class="text-slate-600 text-sm mt-1">Mengambil data dari endpoint <code class="bg-slate-100 px-2 py-0.5 rounded text-indigo-600 font-mono text-xs">fakestoreapi.com/products</code></p>
+                </div>
+                
+                <!-- Filter & Search Controls -->
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <div class="relative flex-1 sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" id="search-input" placeholder="Cari nama produk..." class="w-full pl-10 pr-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                    </div>
+                    <select id="category-filter" class="bg-white border border-slate-300 rounded-lg text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-700">
+                        <option value="all">Semua Kategori</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Loading State (Skeleton) -->
+            <div id="loading-state" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+
+            <!-- Error State -->
+            <div id="error-state" class="hidden bg-red-50 border border-red-200 rounded-2xl p-8 text-center max-w-lg mx-auto my-8">
+                <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">Gagal Memuat Data Produk</h3>
+                <p id="error-message" class="text-slate-600 text-sm mt-1 mb-6">Terjadi kesalahan saat terhubung ke API server.</p>
+                <button id="retry-btn" class="bg-red-600 hover:bg-red-700 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-colors inline-flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-rotate-right"></i> Coba Lagi
+                </button>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden bg-white border border-slate-200 rounded-2xl p-12 text-center max-w-md mx-auto my-8">
+                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">Produk Tidak Ditemukan</h3>
+                <p class="text-slate-500 text-sm mt-1">Coba gunakan kata kunci atau kategori yang berbeda.</p>
+            </div>
+
+            <!-- Products Grid Container -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- BAGIAN 2: Form Pemesanan Interaktif (DOM & Event Handling) -->
+        <section id="form-section" class="pt-8 border-t border-slate-200">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Left Info Banner -->
+                <div class="lg:col-span-5 bg-gradient-to-br from-indigo-600 to-violet-700 text-white rounded-2xl p-8 shadow-xl shadow-indigo-500/10 space-y-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-200 bg-white/10 backdrop-blur px-3 py-1 rounded-full">Fitur 2</span>
+                    <div>
+                        <h2 class="text-3xl font-bold tracking-tight">Form Pemesanan Interaktif</h2>
+                        <p class="text-indigo-100 text-sm mt-2 leading-relaxed">
+                            Formulir ini mendemonstrasikan manipulasi DOM, pemrosesan Event Handling, validasi real-time, dan kalkulasi dinamis.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4 pt-4 border-t border-white/10">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0 text-sm">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm">Validasi Real-time</h4>
+                                <p class="text-xs text-indigo-100">Memeriksa input nama, email, dan jumlah pesanan secara langsung.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0 text-sm">
+                                <i class="fa-solid fa-calculator"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm">Kalkulasi Otomatis</h4>
+                                <p class="text-xs text-indigo-100">Menghitung total harga produk secara akurat.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Form Container -->
+                <div class="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+                    <form id="order-form" novalidate class="space-y-5">
+                        <div>
+                            <label for="user-name" class="block text-sm font-semibold text-slate-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
+                            <input type="text" id="user-name" placeholder="Masukkan nama lengkap Anda" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+                            <p id="name-error" class="text-xs text-red-500 mt-1 hidden"></p>
+                        </div>
+
+                        <div>
+                            <label for="user-email" class="block text-sm font-semibold text-slate-700 mb-1">Alamat Email <span class="text-red-500">*</span></label>
+                            <input type="email" id="user-email" placeholder="contoh@email.com" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+                            <p id="email-error" class="text-xs text-red-500 mt-1 hidden"></p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="sm:col-span-2">
+                                <label for="product-select" class="block text-sm font-semibold text-slate-700 mb-1">Pilih Produk <span class="text-red-500">*</span></label>
+                                <select id="product-select" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all text-slate-700">
+                                    <option value="">-- Pilih produk dari daftar --</option>
+                                </select>
+                                <p id="product-error" class="text-xs text-red-500 mt-1 hidden"></p>
+                            </div>
+
+                            <div>
+                                <label for="quantity-input" class="block text-sm font-semibold text-slate-700 mb-1">Jumlah (Qty) <span class="text-red-500">*</span></label>
+                                <input type="number" id="quantity-input" min="1" max="99" value="1" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+                                <p id="quantity-error" class="text-xs text-red-500 mt-1 hidden"></p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="user-notes" class="block text-sm font-semibold text-slate-700 mb-1">Catatan Tambahan (Opsional)</label>
+                            <textarea id="user-notes" rows="3" placeholder="Tuliskan catatan khusus untuk pesanan..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"></textarea>
+                        </div>
+
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center justify-between">
+                            <span class="text-sm font-medium text-slate-600">Estimasi Total:</span>
+                            <span id="total-price-display" class="text-xl font-bold text-indigo-600">$0.00</span>
+                        </div>
+
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold py-3 px-6 rounded-lg shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Kirim Pesanan
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Pop-up Feedback -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-box">
+            <div class="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            
+            <h3 class="text-xl font-bold text-slate-900 text-center">Pesanan Berhasil Diproses!</h3>
+            <p class="text-xs text-slate-500 text-center mt-1">Berikut adalah ringkasan data dari pemrosesan DOM:</p>
+
+            <div id="summary-content" class="my-6 bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2 text-sm"></div>
+
+            <button id="close-modal-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                Tutup Konfirmasi
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+        <p>&copy; Tugas Front-End Web Development — Fake Store API</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
